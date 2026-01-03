@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Attendance Report - DayFlow HRMS{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Attendance Report</h2>
+        <a href="{% url 'reports:reports_dashboard' %}" class="btn btn-secondary">Back to Reports</a>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Start Date</label>
+                    <input type="date" class="form-control" name="start_date" value="{{ start_date }}">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">End Date</label>
+                    <input type="date" class="form-control" name="end_date" value="{{ end_date }}">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Department</label>
+                    <select class="form-select" name="department">
+                        <option value="">All Departments</option>
+                        <option value="IT">IT</option>
+                        <option value="HR">HR</option>
+                        <option value="Finance">Finance</option>
+                        <option value="Sales">Sales</option>
+                        <option value="Marketing">Marketing</option>
+                        <option value="Operations">Operations</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">&nbsp;</label>
+                    <button type="submit" class="btn btn-primary w-100">Apply Filter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Summary Stats -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Attendance Records</h5>
+                    <h3>{{ total_attendance }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Average Attendance Rate</h5>
+                    <h3>{{ avg_attendance|floatformat:1 }}%</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Avg Working Hours</h5>
+                    <h3>{{ avg_hours|floatformat:1 }} hrs</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Attendance Chart -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Daily Attendance Trend</h5>
+        </div>
+        <div class="card-body">
+            <canvas id="attendanceChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Department-wise Attendance -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Department-wise Attendance</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Department</th>
+                            <th>Total Employees</th>
+                            <th>Present Today</th>
+                            <th>Attendance Rate</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for dept in dept_attendance %}
+                        <tr>
+                            <td>{{ dept.department }}</td>
+                            <td>{{ dept.total }}</td>
+                            <td>{{ dept.present }}</td>
+                            <td>
+                                <div class="progress">
+                                    <div class="progress-bar" role="progressbar" 
+                                         style="width: {{ dept.rate }}%"
+                                         aria-valuenow="{{ dept.rate }}" aria-valuemin="0" aria-valuemax="100">
+                                        {{ dept.rate|floatformat:0 }}%
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('attendanceChart').getContext('2d');
+    const chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: {{ attendance_dates|safe }},
+            datasets: [{
+                label: 'Attendance Count',
+                data: {{ attendance_counts|safe }},
+                borderColor: 'rgb(75, 192, 192)',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

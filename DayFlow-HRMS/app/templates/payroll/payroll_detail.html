@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Payroll Detail - DayFlow HRMS{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-lg-8 offset-lg-2">
+            <div class="card">
+                <div class="card-header">
+                    <h4><i class="fas fa-money-bill-wave"></i> Payroll Details</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>Employee:</strong></div>
+                        <div class="col-sm-8">{{ payroll.employee.get_full_name() }} ({{ payroll.employee.employee_id }})</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>Period:</strong></div>
+                        <div class="col-sm-8">{{ payroll.month }} {{ payroll.year }}</div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>Basic Salary:</strong></div>
+                        <div class="col-sm-8">${{ payroll.basic_salary }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>Allowances:</strong></div>
+                        <div class="col-sm-8 text-success">+${{ payroll.allowances }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>Deductions:</strong></div>
+                        <div class="col-sm-8 text-danger">-${{ payroll.deductions }}</div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>Net Salary:</strong></div>
+                        <div class="col-sm-8"><h4 class="text-primary">${{ payroll.net_salary }}</h4></div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>Payment Status:</strong></div>
+                        <div class="col-sm-8">
+                            <span class="badge bg-{{ 'success' if payroll.payment_status == 'Paid' else 'warning' }} fs-6">
+                                {{ payroll.payment_status }}
+                            </span>
+                        </div>
+                    </div>
+                    {% if payroll.payment_date %}
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>Payment Date:</strong></div>
+                        <div class="col-sm-8">{{ payroll.payment_date.strftime('%Y-%m-%d') }}</div>
+                    </div>
+                    {% endif %}
+                    
+                    <hr>
+                    
+                    <div class="d-flex gap-2">
+                        {% if current_user.role == 'admin' %}
+                        <a href="{{ url_for('payroll.edit', payroll_id=payroll.id) }}" class="btn btn-warning">
+                            <i class="fas fa-edit"></i> Edit
+                        </a>
+                        {% endif %}
+                        <a href="{{ url_for('payroll.index') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

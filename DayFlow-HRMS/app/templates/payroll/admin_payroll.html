@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block title %}Payroll Management - DayFlow HRMS{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-money-bill-wave"></i> Payroll Management</h2>
+                <a href="{{ url_for('payroll.add') }}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Add Payroll
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search -->
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <form method="GET">
+                <div class="input-group">
+                    <input type="text" class="form-control" name="search" placeholder="Search by employee" 
+                           value="{{ search }}">
+                    <button class="btn btn-primary" type="submit">
+                        <i class="fas fa-search"></i> Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Payroll Table -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Employee</th>
+                                    <th>Month</th>
+                                    <th>Year</th>
+                                    <th>Basic Salary</th>
+                                    <th>Net Salary</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if payrolls.items %}
+                                    {% for payroll in payrolls.items %}
+                                    <tr>
+                                        <td>{{ payroll.employee.employee_id }}<br><small>{{ payroll.employee.get_full_name() }}</small></td>
+                                        <td>{{ payroll.month }}</td>
+                                        <td>{{ payroll.year }}</td>
+                                        <td>${{ payroll.basic_salary }}</td>
+                                        <td><strong>${{ payroll.net_salary }}</strong></td>
+                                        <td>
+                                            <span class="badge bg-{{ 'success' if payroll.payment_status == 'Paid' else 'warning' }}">
+                                                {{ payroll.payment_status }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <a href="{{ url_for('payroll.detail', payroll_id=payroll.id) }}" 
+                                               class="btn btn-sm btn-info">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="{{ url_for('payroll.edit', payroll_id=payroll.id) }}" 
+                                               class="btn btn-sm btn-warning">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="7" class="text-center">No payroll records found</td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    {% if payrolls.pages > 1 %}
+                    <nav>
+                        <ul class="pagination justify-content-center">
+                            {% if payrolls.has_prev %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ payrolls.prev_num }}&search={{ search }}">Previous</a>
+                            </li>
+                            {% endif %}
+                            
+                            {% for page_num in payrolls.iter_pages() %}
+                                {% if page_num %}
+                                    <li class="page-item {% if page_num == payrolls.page %}active{% endif %}">
+                                        <a class="page-link" href="?page={{ page_num }}&search={{ search }}">{{ page_num }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% if payrolls.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ payrolls.next_num }}&search={{ search }}">Next</a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

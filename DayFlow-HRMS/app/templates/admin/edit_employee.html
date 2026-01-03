@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Employee - DayFlow HRMS{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-lg-10 offset-lg-1">
+            <div class="card">
+                <div class="card-header">
+                    <h4><i class="fas fa-edit"></i> Edit Employee: {{ user.employee_id }}</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        <h5 class="mb-3">Personal Information</h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="first_name" class="form-label">First Name</label>
+                                <input type="text" class="form-control" id="first_name" name="first_name" 
+                                       value="{{ user.first_name or '' }}">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="last_name" class="form-label">Last Name</label>
+                                <input type="text" class="form-control" id="last_name" name="last_name" 
+                                       value="{{ user.last_name or '' }}">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="phone" class="form-label">Phone</label>
+                                <input type="tel" class="form-control" id="phone" name="phone" 
+                                       value="{{ user.phone or '' }}">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="date_of_birth" class="form-label">Date of Birth</label>
+                                <input type="date" class="form-control" id="date_of_birth" name="date_of_birth" 
+                                       value="{{ user.date_of_birth.strftime('%Y-%m-%d') if user.date_of_birth else '' }}">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="gender" class="form-label">Gender</label>
+                                <select class="form-select" id="gender" name="gender">
+                                    <option value="">Select</option>
+                                    <option value="Male" {% if user.gender == 'Male' %}selected{% endif %}>Male</option>
+                                    <option value="Female" {% if user.gender == 'Female' %}selected{% endif %}>Female</option>
+                                    <option value="Other" {% if user.gender == 'Other' %}selected{% endif %}>Other</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="profile_picture" class="form-label">Profile Picture</label>
+                                <input type="file" class="form-control" id="profile_picture" name="profile_picture" accept="image/*">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="address" class="form-label">Address</label>
+                            <textarea class="form-control" id="address" name="address" rows="2">{{ user.address or '' }}</textarea>
+                        </div>
+
+                        <hr>
+                        <h5 class="mb-3">Job Information</h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="department" class="form-label">Department</label>
+                                <input type="text" class="form-control" id="department" name="department" 
+                                       value="{{ user.department or '' }}">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="designation" class="form-label">Designation</label>
+                                <input type="text" class="form-control" id="designation" name="designation" 
+                                       value="{{ user.designation or '' }}">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="joining_date" class="form-label">Joining Date</label>
+                                <input type="date" class="form-control" id="joining_date" name="joining_date" 
+                                       value="{{ user.joining_date.strftime('%Y-%m-%d') if user.joining_date else '' }}">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="employment_type" class="form-label">Employment Type</label>
+                                <select class="form-select" id="employment_type" name="employment_type">
+                                    <option value="">Select</option>
+                                    <option value="Full-time" {% if user.employment_type == 'Full-time' %}selected{% endif %}>Full-time</option>
+                                    <option value="Part-time" {% if user.employment_type == 'Part-time' %}selected{% endif %}>Part-time</option>
+                                    <option value="Contract" {% if user.employment_type == 'Contract' %}selected{% endif %}>Contract</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="is_active" name="is_active" 
+                                   {% if user.is_active %}checked{% endif %}>
+                            <label class="form-check-label" for="is_active">Active Employee</label>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Save Changes
+                            </button>
+                            <a href="{{ url_for('admin.employee_detail', user_id=user.id) }}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

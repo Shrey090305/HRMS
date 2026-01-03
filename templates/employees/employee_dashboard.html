@@ -1,0 +1,166 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Employees - DayFlow HRMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header with stats -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex align-items-center">
+            <h2 class="mb-0 me-4">Employees</h2>
+        </div>
+        <div class="d-flex gap-3">
+            <div class="text-center">
+                <small class="text-muted">Total</small>
+                <h5 class="mb-0">{{ total_employees }}</h5>
+            </div>
+            <div class="text-center">
+                <small class="text-muted">Today</small>
+                <h5 class="mb-0">{{ today_attendance }}</h5>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="row mb-4">
+        <div class="col-12 col-md-8 offset-md-2 col-lg-6 offset-lg-3">
+            <form method="get" action="">
+                <div class="input-group">
+                    <input type="text" class="form-control form-control-lg" 
+                           name="search" 
+                           placeholder="Search employees by name, ID, or department..." 
+                           value="{{ search_query }}">
+                    <button class="btn btn-outline-secondary" type="submit">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Employee Cards Grid -->
+    {% if employees %}
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 row-cols-xxl-6 g-3 g-md-4">
+        {% for emp in employees %}
+        <div class="col">
+            <div class="card h-100 employee-card shadow-sm">
+                <div class="card-body text-center position-relative" style="padding: 1.5rem 1rem;">
+                    <!-- Status Indicator -->
+                    <div class="position-absolute top-0 end-0 p-3">
+                        {% if emp.status == 'present' %}
+                            <span class="badge rounded-circle bg-success" style="width: 16px; height: 16px; padding: 0; display: inline-block;" title="Present"></span>
+                        {% elif emp.status == 'on_leave' %}
+                            <span style="font-size: 1.3rem; line-height: 1;" title="On Leave">✈️</span>
+                        {% else %}
+                            <span class="badge rounded-circle bg-warning" style="width: 16px; height: 16px; padding: 0; display: inline-block;" title="Absent"></span>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Profile Image -->
+                    <div class="mb-3 mt-2">
+                        <div class="rounded-circle bg-primary d-inline-flex align-items-center justify-content-center"
+                             style="width: 100px; height: 100px;">
+                            <i class="fas fa-user text-white" style="font-size: 48px;"></i>
+                        </div>
+                    </div>
+                    
+                    <!-- Employee Info -->
+                    <h5 class="card-title mb-2 fw-bold" style="font-size: 1.1rem;">{{ emp.user.get_full_name }}</h5>
+                    <p class="text-muted mb-1" style="font-size: 0.85rem;">{{ emp.employee_id }}</p>
+                    <p class="text-muted mb-1" style="font-size: 0.85rem;">{{ emp.get_department_display }}</p>
+                    <p class="text-muted mb-3" style="font-size: 0.85rem;">{{ emp.designation }}</p>
+                    
+                    <!-- Email -->
+                    {% if emp.user.email %}
+                    <div class="mb-3 pb-3 border-bottom">
+                        <p class="text-muted small mb-0">
+                            <i class="fas fa-envelope me-1"></i>
+                            <small>{{ emp.user.email }}</small>
+                        </p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-info text-center">
+        <i class="fas fa-info-circle"></i> No employees found.
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.employee-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.employee-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+.nav-tabs {
+    overflow-x: auto;
+    overflow-y: hidden;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+}
+
+.nav-tabs .nav-link {
+    color: #6c757d;
+    border: none;
+    border-bottom: 3px solid transparent;
+    padding: 0.75rem 1.5rem;
+    white-space: nowrap;
+}
+
+.nav-tabs .nav-link.active {
+    color: #0d6efd;
+    background-color: transparent;
+    border-bottom: 3px solid #0d6efd;
+}
+
+.nav-tabs .nav-link:hover {
+    color: #0d6efd;
+    border-color: transparent;
+}
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+    h2 {
+        font-size: 1.5rem;
+    }
+    
+    .d-flex.gap-3 > div {
+        padding: 0 0.5rem;
+    }
+    
+    .employee-card .card-body {
+        padding: 1rem 0.75rem !important;
+    }
+    
+    .rounded-circle {
+        width: 80px !important;
+        height: 80px !important;
+    }
+    
+    .rounded-circle i {
+        font-size: 36px !important;
+    }
+    
+    .card-title {
+        font-size: 1rem !important;
+    }
+}
+
+@media (min-width: 1400px) {
+    .container-fluid {
+        padding-left: 2rem;
+        padding-right: 2rem;
+    }
+}
+</style>
+{% endblock %}

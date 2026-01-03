@@ -1,0 +1,175 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Time Off - DayFlow HRMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <!-- Time Off Header with Allocation -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="text-danger" style="font-weight: 600; background-color: #FFB6C1; padding: 8px 20px; display: inline-block;">
+            Time Off
+        </h2>
+        <h5 class="mb-0">Allocation</h5>
+    </div>
+
+    <!-- Search Bar and NEW Button -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <button class="btn btn-sm text-white" style="background-color: #9B59B6; font-weight: bold; padding: 8px 20px;">
+            NEW
+        </button>
+        <div class="col-md-6">
+            <input type="text" class="form-control" id="searchBar" placeholder="Searchbar" 
+                   value="{{ search_query }}" onkeyup="filterLeaveRequests()" 
+                   style="background-color: #f8f9fa;">
+        </div>
+    </div>
+
+    <!-- Leave Allocation Cards -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="border p-3">
+                <h6 class="text-primary" style="font-weight: 600;">Paid time Off</h6>
+                <p class="mb-0">{{ allocation.paid_time_off_available|default:"24" }} Days Available</p>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="border p-3">
+                <h6 class="text-primary" style="font-weight: 600;">Sick time off</h6>
+                <p class="mb-0">{{ allocation.sick_time_off_available|default:"07" }} Days Available</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leave Requests Table -->
+    <div class="card shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-bordered mb-0" id="leaveTable">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width: 20%;">Name</th>
+                        <th style="width: 15%;">Start Date</th>
+                        <th style="width: 15%;">End Date</th>
+                        <th style="width: 20%;">Time off Type</th>
+                        <th style="width: 15%;">Status</th>
+                        <th style="width: 15%;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if leave_requests %}
+                        {% for leave in leave_requests %}
+                        <tr class="leave-row" data-name="{{ leave.employee.user.get_full_name|lower }}">
+                            <td>[{{ leave.employee.user.get_full_name }}]</td>
+                            <td>{{ leave.start_date|date:"d/m/Y" }}</td>
+                            <td>{{ leave.end_date|date:"d/m/Y" }}</td>
+                            <td class="text-primary">
+                                {% if leave.leave_type == 'annual' or leave.leave_type == 'casual' %}
+                                    Paid time Off
+                                {% elif leave.leave_type == 'sick' %}
+                                    Sick time off
+                                {% else %}
+                                    {{ leave.get_leave_type_display }}
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if leave.status == 'pending' %}
+                                    <span class="badge bg-warning text-dark">Pending</span>
+                                {% elif leave.status == 'approved' %}
+                                    <span class="badge bg-success">Approved</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Rejected</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if leave.status == 'pending' %}
+                                    <button class="btn btn-sm btn-danger me-2" onclick="updateLeaveStatus({{ leave.pk }}, 'rejected')">
+                                        Reject
+                                    </button>
+                                    <button class="btn btn-sm btn-success" onclick="updateLeaveStatus({{ leave.pk }}, 'approved')">
+                                        Approve
+                                    </button>
+                                {% else %}
+                                    <span class="text-muted">No actions</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-4">
+                                No leave requests found.
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% csrf_token %}
+
+<script>
+function filterLeaveRequests() {
+    const searchValue = document.getElementById('searchBar').value.toLowerCase();
+    const rows = document.querySelectorAll('.leave-row');
+    
+    rows.forEach(row => {
+        const employeeName = row.getAttribute('data-name');
+        if (employeeName.includes(searchValue)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+
+function updateLeaveStatus(leaveId, status) {
+    if (!confirm(`Are you sure you want to ${status} this leave request?`)) {
+        return;
+    }
+    
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    
+    fetch(`/leave/update-status/${leaveId}/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken
+        },
+        body: JSON.stringify({ status: status })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(`Leave request ${status} successfully!`);
+            location.reload();
+        } else {
+            alert(`Error: ${data.message}`);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error updating leave status');
+    });
+}
+</script>
+
+<style>
+.table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    border: 1px solid #dee2e6;
+}
+
+.table td {
+    border: 1px solid #dee2e6;
+    padding: 12px;
+    vertical-align: middle;
+}
+
+.table-bordered {
+    border: 1px solid #dee2e6;
+}
+</style>
+{% endblock %}

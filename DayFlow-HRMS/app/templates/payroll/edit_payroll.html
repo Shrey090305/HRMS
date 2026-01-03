@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Payroll - DayFlow HRMS{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-lg-8 offset-lg-2">
+            <div class="card">
+                <div class="card-header">
+                    <h4><i class="fas fa-edit"></i> Edit Payroll Record</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="alert alert-info">
+                            <strong>Employee:</strong> {{ payroll.employee.get_full_name() }} ({{ payroll.employee.employee_id }})<br>
+                            <strong>Period:</strong> {{ payroll.month }} {{ payroll.year }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="basic_salary" class="form-label">Basic Salary *</label>
+                            <input type="number" step="0.01" class="form-control" id="basic_salary" 
+                                   name="basic_salary" value="{{ payroll.basic_salary }}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="allowances" class="form-label">Allowances</label>
+                            <input type="number" step="0.01" class="form-control" id="allowances" 
+                                   name="allowances" value="{{ payroll.allowances }}">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="deductions" class="form-label">Deductions</label>
+                            <input type="number" step="0.01" class="form-control" id="deductions" 
+                                   name="deductions" value="{{ payroll.deductions }}">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="payment_status" class="form-label">Payment Status</label>
+                            <select class="form-select" id="payment_status" name="payment_status">
+                                <option value="Pending" {% if payroll.payment_status == 'Pending' %}selected{% endif %}>Pending</option>
+                                <option value="Paid" {% if payroll.payment_status == 'Paid' %}selected{% endif %}>Paid</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="payment_date" class="form-label">Payment Date</label>
+                            <input type="date" class="form-control" id="payment_date" name="payment_date" 
+                                   value="{{ payroll.payment_date.strftime('%Y-%m-%d') if payroll.payment_date else '' }}">
+                        </div>
+
+                        <div class="alert alert-info">
+                            <p class="mb-0" id="net-salary-display">
+                                Net Salary: ${{ payroll.net_salary }}
+                            </p>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Save Changes
+                            </button>
+                            <a href="{{ url_for('payroll.detail', payroll_id=payroll.id) }}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Reports Dashboard - DayFlow HRMS{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Reports & Analytics</h2>
+
+    <!-- Overview Stats -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary">
+                <div class="card-body">
+                    <h5 class="card-title">Total Employees</h5>
+                    <h3>{{ total_employees }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success">
+                <div class="card-body">
+                    <h5 class="card-title">Today's Attendance</h5>
+                    <h3>{{ today_attendance }}</h3>
+                    <small>{{ attendance_rate|floatformat:1 }}%</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-warning">
+                <div class="card-body">
+                    <h5 class="card-title">Pending Leaves</h5>
+                    <h3>{{ pending_leaves }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-info">
+                <div class="card-body">
+                    <h5 class="card-title">Monthly Payroll</h5>
+                    <h3>₹{{ monthly_payroll|floatformat:0 }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <i class="bi bi-calendar-check" style="font-size: 3rem;"></i>
+                    <h5 class="mt-3">Attendance Reports</h5>
+                    <p>View detailed attendance statistics and trends</p>
+                    <a href="{% url 'reports:attendance_report' %}" class="btn btn-primary">View Report</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <i class="bi bi-calendar-x" style="font-size: 3rem;"></i>
+                    <h5 class="mt-3">Leave Reports</h5>
+                    <p>Analyze leave patterns and trends</p>
+                    <a href="{% url 'reports:leave_report' %}" class="btn btn-primary">View Report</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <i class="bi bi-people" style="font-size: 3rem;"></i>
+                    <h5 class="mt-3">Department Distribution</h5>
+                    <p>View employee distribution by department</p>
+                    <a href="#departmentChart" class="btn btn-primary">View Chart</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Department Distribution Chart -->
+    <div class="card mb-4" id="departmentChart">
+        <div class="card-header">
+            <h5 class="mb-0">Department Distribution</h5>
+        </div>
+        <div class="card-body">
+            <canvas id="deptChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Recent Activity Summary</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h6>Approved Leaves</h6>
+                    <p class="text-muted">{{ approved_leaves }} leaves approved this month</p>
+                </div>
+                <div class="col-md-6">
+                    <h6>Average Attendance</h6>
+                    <p class="text-muted">{{ attendance_rate|floatformat:1 }}% attendance rate</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Department Distribution Chart
+    const ctx = document.getElementById('deptChart').getContext('2d');
+    const deptChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: {{ dept_labels|safe }},
+            datasets: [{
+                label: 'Number of Employees',
+                data: {{ dept_data|safe }},
+                backgroundColor: [
+                    'rgba(54, 162, 235, 0.5)',
+                    'rgba(255, 99, 132, 0.5)',
+                    'rgba(255, 206, 86, 0.5)',
+                    'rgba(75, 192, 192, 0.5)',
+                    'rgba(153, 102, 255, 0.5)',
+                    'rgba(255, 159, 64, 0.5)'
+                ],
+                borderColor: [
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

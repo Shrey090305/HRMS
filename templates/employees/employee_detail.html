@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ employee.user.get_full_name }} - DayFlow HRMS{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Employee Details</h2>
+        <div>
+            <a href="{% url 'employees:edit_employee' employee.pk %}" class="btn btn-warning">Edit</a>
+            <a href="{% url 'employees:employee_list' %}" class="btn btn-secondary">Back to List</a>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Basic Information -->
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Basic Information</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Full Name:</strong> {{ employee.user.get_full_name }}</p>
+                    <p><strong>Employee ID:</strong> {{ employee.employee_id }}</p>
+                    <p><strong>Email:</strong> {{ employee.user.email }}</p>
+                    <p><strong>Username:</strong> {{ employee.user.username }}</p>
+                    <p><strong>Department:</strong> {{ employee.get_department_display }}</p>
+                    <p><strong>Designation:</strong> {{ employee.designation }}</p>
+                    <p><strong>Employment Type:</strong> {{ employee.get_employment_type_display }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Employment Details -->
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Employment Details</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Date Joined:</strong> {{ employee.date_joined }}</p>
+                    <p><strong>Salary:</strong> ₹{{ employee.salary|floatformat:2 }}</p>
+                    <p><strong>Status:</strong> 
+                        {% if employee.is_active %}
+                            <span class="badge bg-success">Active</span>
+                        {% else %}
+                            <span class="badge bg-danger">Inactive</span>
+                        {% endif %}
+                    </p>
+                    <p><strong>Account Created:</strong> {{ employee.created_at|date:"M d, Y" }}</p>
+                    <p><strong>Last Updated:</strong> {{ employee.updated_at|date:"M d, Y" }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics -->
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card text-white bg-primary mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Total Attendance</h5>
+                    <h3>{{ attendance_count }}</h3>
+                    <p class="mb-0">Days Present</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-white bg-info mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Leave Requests</h5>
+                    <h3>{{ leave_count }}</h3>
+                    <p class="mb-0">Total Requests</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-white bg-success mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Monthly Salary</h5>
+                    <h3>₹{{ employee.salary|floatformat:0 }}</h3>
+                    <p class="mb-0">Current Salary</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Quick Actions</h5>
+        </div>
+        <div class="card-body">
+            <a href="{% url 'attendance:admin_attendance' %}?employee={{ employee.pk }}" class="btn btn-primary me-2">View Attendance</a>
+            <a href="{% url 'leave:admin_leave' %}?employee={{ employee.pk }}" class="btn btn-info me-2">View Leaves</a>
+            <a href="{% url 'payroll:admin_payroll' %}?employee={{ employee.pk }}" class="btn btn-success me-2">View Payroll</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

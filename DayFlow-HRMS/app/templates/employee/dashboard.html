@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% block title %}Employee Dashboard - DayFlow HRMS{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">
+                <i class="fas fa-tachometer-alt"></i> Employee Dashboard
+            </h2>
+            <p class="text-muted">Welcome back, {{ current_user.get_full_name() }}!</p>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Profile Card -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card dashboard-card h-100">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        {% if current_user.profile_picture and current_user.profile_picture != 'default.jpg' %}
+                        <img src="{{ url_for('static', filename='uploads/' + current_user.profile_picture) }}" 
+                             class="rounded-circle profile-img" alt="Profile">
+                        {% else %}
+                        <i class="fas fa-user-circle fa-5x text-primary"></i>
+                        {% endif %}
+                    </div>
+                    <h5>{{ current_user.get_full_name() }}</h5>
+                    <p class="text-muted mb-2">{{ current_user.employee_id }}</p>
+                    <p class="text-muted mb-3">{{ current_user.designation or 'N/A' }}</p>
+                    <a href="{{ url_for('employee.profile') }}" class="btn btn-primary btn-sm">
+                        <i class="fas fa-eye"></i> View Profile
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Attendance Card -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card dashboard-card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-calendar-check text-success"></i> Today's Attendance
+                    </h5>
+                    {% if today_attendance %}
+                        <p class="mb-2"><strong>Status:</strong> 
+                            <span class="badge bg-{{ 'success' if today_attendance.status == 'Present' else 'warning' }}">
+                                {{ today_attendance.status }}
+                            </span>
+                        </p>
+                        {% if today_attendance.check_in %}
+                        <p class="mb-2"><strong>Check In:</strong> {{ today_attendance.check_in.strftime('%H:%M') }}</p>
+                        {% endif %}
+                        {% if today_attendance.check_out %}
+                        <p class="mb-2"><strong>Check Out:</strong> {{ today_attendance.check_out.strftime('%H:%M') }}</p>
+                        {% endif %}
+                    {% else %}
+                        <p class="text-muted">No attendance marked today</p>
+                    {% endif %}
+                    <a href="{{ url_for('attendance.index') }}" class="btn btn-outline-primary btn-sm mt-2">
+                        View Details
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Leave Card -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card dashboard-card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-plane text-info"></i> Leave Requests
+                    </h5>
+                    <h2 class="mb-3">{{ pending_leaves }}</h2>
+                    <p class="text-muted mb-3">Pending Requests</p>
+                    <a href="{{ url_for('leave.index') }}" class="btn btn-outline-primary btn-sm">
+                        View All
+                    </a>
+                    <a href="{{ url_for('leave.apply') }}" class="btn btn-primary btn-sm">
+                        <i class="fas fa-plus"></i> Apply
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payroll Card -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card dashboard-card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-money-bill-wave text-warning"></i> Latest Payroll
+                    </h5>
+                    {% if latest_payroll %}
+                        <h2 class="mb-2">${{ latest_payroll.net_salary }}</h2>
+                        <p class="text-muted mb-2">{{ latest_payroll.month }} {{ latest_payroll.year }}</p>
+                        <span class="badge bg-{{ 'success' if latest_payroll.payment_status == 'Paid' else 'warning' }}">
+                            {{ latest_payroll.payment_status }}
+                        </span>
+                    {% else %}
+                        <p class="text-muted">No payroll data</p>
+                    {% endif %}
+                    <br>
+                    <a href="{{ url_for('payroll.index') }}" class="btn btn-outline-primary btn-sm mt-2">
+                        View Details
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Attendance -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-history"></i> Recent Attendance (Last 7 Days)</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Check In</th>
+                                    <th>Check Out</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if recent_attendance %}
+                                    {% for record in recent_attendance %}
+                                    <tr>
+                                        <td>{{ record.date.strftime('%Y-%m-%d') }}</td>
+                                        <td>{{ record.check_in.strftime('%H:%M') if record.check_in else '-' }}</td>
+                                        <td>{{ record.check_out.strftime('%H:%M') if record.check_out else '-' }}</td>
+                                        <td>
+                                            <span class="badge bg-{{ 'success' if record.status == 'Present' else 'warning' }}">
+                                                {{ record.status }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="4" class="text-center">No recent attendance records</td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Generate Payroll - DayFlow HRMS{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">Generate Payroll</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.employee.id_for_label }}" class="form-label">Employee</label>
+                            {{ form.employee }}
+                            {% if form.employee.errors %}
+                                <div class="text-danger">{{ form.employee.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.month.id_for_label }}" class="form-label">Month</label>
+                                {{ form.month }}
+                                {% if form.month.errors %}
+                                    <div class="text-danger">{{ form.month.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.year.id_for_label }}" class="form-label">Year</label>
+                                {{ form.year }}
+                                {% if form.year.errors %}
+                                    <div class="text-danger">{{ form.year.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.basic_salary.id_for_label }}" class="form-label">Basic Salary</label>
+                            {{ form.basic_salary }}
+                            {% if form.basic_salary.errors %}
+                                <div class="text-danger">{{ form.basic_salary.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.working_days.id_for_label }}" class="form-label">Working Days</label>
+                            {{ form.working_days }}
+                            {% if form.working_days.errors %}
+                                <div class="text-danger">{{ form.working_days.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.days_present.id_for_label }}" class="form-label">Days Present</label>
+                            {{ form.days_present }}
+                            {% if form.days_present.errors %}
+                                <div class="text-danger">{{ form.days_present.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'payroll:admin_payroll' %}" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Generate Payroll</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

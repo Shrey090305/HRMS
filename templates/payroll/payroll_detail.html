@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Payroll Details - DayFlow HRMS{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">Payroll Slip</h4>
+                    {% if payroll.is_paid %}
+                        <span class="badge bg-success">Paid</span>
+                    {% else %}
+                        <span class="badge bg-warning">Pending</span>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <!-- Employee Information -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h5>Employee Information</h5>
+                            <p><strong>Name:</strong> {{ payroll.employee.user.get_full_name }}</p>
+                            <p><strong>Employee ID:</strong> {{ payroll.employee.employee_id }}</p>
+                            <p><strong>Department:</strong> {{ payroll.employee.get_department_display }}</p>
+                            <p><strong>Designation:</strong> {{ payroll.employee.designation }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Payroll Period</h5>
+                            <p><strong>Month:</strong> {{ payroll.get_month_display }}</p>
+                            <p><strong>Year:</strong> {{ payroll.year }}</p>
+                            <p><strong>Working Days:</strong> {{ payroll.working_days }}</p>
+                            <p><strong>Days Present:</strong> {{ payroll.days_present }}</p>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <!-- Salary Breakdown -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h5>Earnings</h5>
+                            <table class="table table-sm">
+                                <tr>
+                                    <td>Basic Salary</td>
+                                    <td class="text-end">₹{{ payroll.basic_salary|floatformat:2 }}</td>
+                                </tr>
+                                {% for component in allowances %}
+                                <tr>
+                                    <td>{{ component.component_name }}</td>
+                                    <td class="text-end">₹{{ component.amount|floatformat:2 }}</td>
+                                </tr>
+                                {% endfor %}
+                                <tr class="fw-bold">
+                                    <td>Total Earnings</td>
+                                    <td class="text-end">₹{{ total_earnings|floatformat:2 }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Deductions</h5>
+                            <table class="table table-sm">
+                                {% for component in deductions %}
+                                <tr>
+                                    <td>{{ component.component_name }}</td>
+                                    <td class="text-end">₹{{ component.amount|floatformat:2 }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="2">No deductions</td>
+                                </tr>
+                                {% endfor %}
+                                <tr class="fw-bold">
+                                    <td>Total Deductions</td>
+                                    <td class="text-end">₹{{ payroll.total_deductions|floatformat:2 }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <!-- Net Salary -->
+                    <div class="row mb-4">
+                        <div class="col-md-12">
+                            <div class="card bg-primary text-white">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h5 class="mb-0">Net Salary</h5>
+                                        <h3 class="mb-0">₹{{ payroll.net_salary|floatformat:2 }}</h3>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if payroll.is_paid and payroll.payment_date %}
+                    <div class="alert alert-success">
+                        Payment made on {{ payroll.payment_date }}
+                    </div>
+                    {% endif %}
+
+                    <!-- Actions -->
+                    <div class="d-flex justify-content-between mt-4">
+                        {% if user.is_admin %}
+                            <a href="{% url 'payroll:admin_payroll' %}" class="btn btn-secondary">Back to List</a>
+                            <div>
+                                <a href="{% url 'payroll:edit_payroll' payroll.pk %}" class="btn btn-warning">Edit</a>
+                                {% if not payroll.is_paid %}
+                                    <a href="{% url 'payroll:mark_paid' payroll.pk %}" class="btn btn-success">Mark as Paid</a>
+                                {% endif %}
+                            </div>
+                        {% else %}
+                            <a href="{% url 'payroll:employee_payroll' %}" class="btn btn-secondary">Back to My Payroll</a>
+                            <button class="btn btn-primary" onclick="window.print()">Print Slip</button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Apply for Leave - DayFlow HRMS{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-lg-8 offset-lg-2">
+            <div class="card">
+                <div class="card-header">
+                    <h4><i class="fas fa-plus"></i> Apply for Leave</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label for="leave_type" class="form-label">Leave Type *</label>
+                            <select class="form-select" id="leave_type" name="leave_type" required>
+                                <option value="">Select Type</option>
+                                <option value="Sick">Sick Leave</option>
+                                <option value="Casual">Casual Leave</option>
+                                <option value="Annual">Annual Leave</option>
+                                <option value="Emergency">Emergency Leave</option>
+                            </select>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="start_date" class="form-label">Start Date *</label>
+                                <input type="date" class="form-control" id="start_date" name="start_date" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="end_date" class="form-label">End Date *</label>
+                                <input type="date" class="form-control" id="end_date" name="end_date" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="reason" class="form-label">Reason *</label>
+                            <textarea class="form-control" id="reason" name="reason" rows="4" required></textarea>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane"></i> Submit Request
+                            </button>
+                            <a href="{{ url_for('leave.index') }}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

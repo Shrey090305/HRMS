@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Employees - DayFlow HRMS{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Employee Management</h2>
+        <a href="{% url 'employees:add_employee' %}" class="btn btn-primary">Add Employee</a>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get">
+                <div class="input-group">
+                    <input type="text" class="form-control" name="search" placeholder="Search by name, ID, or department..." value="{{ search_query }}">
+                    <button class="btn btn-primary" type="submit">Search</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Employees Table -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">All Employees</h5>
+        </div>
+        <div class="card-body">
+            {% if employees %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Employee ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Department</th>
+                            <th>Designation</th>
+                            <th>Join Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for employee in employees %}
+                        <tr>
+                            <td>{{ employee.employee_id }}</td>
+                            <td>{{ employee.user.get_full_name }}</td>
+                            <td>{{ employee.user.email }}</td>
+                            <td>{{ employee.get_department_display }}</td>
+                            <td>{{ employee.designation }}</td>
+                            <td>{{ employee.date_joined }}</td>
+                            <td>
+                                <a href="{% url 'employees:employee_detail' employee.pk %}" class="btn btn-sm btn-info">View</a>
+                                <a href="{% url 'employees:edit_employee' employee.pk %}" class="btn btn-sm btn-warning">Edit</a>
+                                <a href="{% url 'employees:delete_employee' employee.pk %}" 
+                                   class="btn btn-sm btn-danger"
+                                   onclick="return confirm('Are you sure you want to deactivate this employee?')">Deactivate</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                No employees found.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

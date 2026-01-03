@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}My Payroll - DayFlow HRMS{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4"><i class="fas fa-money-bill-wave"></i> My Payroll</h2>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Month</th>
+                                    <th>Year</th>
+                                    <th>Basic Salary</th>
+                                    <th>Allowances</th>
+                                    <th>Deductions</th>
+                                    <th>Net Salary</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if payrolls %}
+                                    {% for payroll in payrolls %}
+                                    <tr>
+                                        <td>{{ payroll.month }}</td>
+                                        <td>{{ payroll.year }}</td>
+                                        <td>${{ payroll.basic_salary }}</td>
+                                        <td>${{ payroll.allowances }}</td>
+                                        <td>${{ payroll.deductions }}</td>
+                                        <td><strong>${{ payroll.net_salary }}</strong></td>
+                                        <td>
+                                            <span class="badge bg-{{ 'success' if payroll.payment_status == 'Paid' else 'warning' }}">
+                                                {{ payroll.payment_status }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <a href="{{ url_for('payroll.detail', payroll_id=payroll.id) }}" 
+                                               class="btn btn-sm btn-info">
+                                                <i class="fas fa-eye"></i> View
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="8" class="text-center">No payroll records yet</td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

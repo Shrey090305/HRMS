@@ -1,0 +1,266 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Time Off - DayFlow HRMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <!-- Time Off Header -->
+    <div class="mb-3">
+        <h2 class="text-white d-inline-block" style="font-weight: 600; background-color: #FFB6C1; padding: 10px 25px; border-radius: 3px;">
+            Time Off
+        </h2>
+    </div>
+
+    <!-- NEW Button -->
+    <div class="mb-4">
+        <button type="button" class="btn text-white" 
+                style="background-color: #9B59B6; font-weight: bold; padding: 10px 30px; border-radius: 3px;"
+                data-bs-toggle="modal" data-bs-target="#leaveRequestModal">
+            NEW
+        </button>
+    </div>
+
+    <!-- Leave Allocation Cards -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="border p-4 rounded" style="background-color: #fff;">
+                <h5 class="text-primary mb-3" style="font-weight: 600;">Paid time Off</h5>
+                <h4 class="mb-0">
+                    {% if allocation %}
+                        {% if allocation.paid_time_off_available < 10 %}
+                            0{{ allocation.paid_time_off_available }}
+                        {% else %}
+                            {{ allocation.paid_time_off_available }}
+                        {% endif %}
+                    {% else %}
+                        24
+                    {% endif %}
+                    Days Available
+                </h4>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="border p-4 rounded" style="background-color: #fff;">
+                <h5 class="text-primary mb-3" style="font-weight: 600;">Sick time off</h5>
+                <h4 class="mb-0">
+                    {% if allocation %}
+                        {% if allocation.sick_time_off_available < 10 %}
+                            0{{ allocation.sick_time_off_available }}
+                        {% else %}
+                            {{ allocation.sick_time_off_available }}
+                        {% endif %}
+                    {% else %}
+                        07
+                    {% endif %}
+                    Days Available
+                </h4>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leave Requests Table -->
+    <div class="table-responsive">
+        <table class="table table-bordered">
+            <thead style="background-color: #f8f9fa;">
+                <tr>
+                    <th style="width: 20%; padding: 15px;">Name</th>
+                    <th style="width: 15%; padding: 15px;">Start Date</th>
+                    <th style="width: 15%; padding: 15px;">End Date</th>
+                    <th style="width: 25%; padding: 15px;">Time off Type</th>
+                    <th style="width: 25%; padding: 15px;">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if leave_requests %}
+                    {% for leave in leave_requests %}
+                    <tr>
+                        <td style="padding: 15px;">{{ leave.employee.user.get_full_name }}</td>
+                        <td style="padding: 15px;">{{ leave.start_date|date:"d/m/Y" }}</td>
+                        <td style="padding: 15px;">{{ leave.end_date|date:"d/m/Y" }}</td>
+                        <td style="padding: 15px; color: #007bff;">
+                            {% if leave.leave_type == 'annual' %}
+                                Paid time Off
+                            {% elif leave.leave_type == 'sick' %}
+                                Sick time off
+                            {% elif leave.leave_type == 'unpaid' %}
+                                Unpaid time off
+                            {% else %}
+                                {{ leave.get_leave_type_display }}
+                            {% endif %}
+                        </td>
+                        <td style="padding: 15px;">
+                            {% if leave.status == 'pending' %}
+                                <span class="badge bg-warning text-dark">Pending</span>
+                            {% elif leave.status == 'approved' %}
+                                <span class="badge bg-success">Approved</span>
+                            {% elif leave.status == 'rejected' %}
+                                <span class="badge bg-danger">Rejected</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center text-muted py-4">
+                            No leave requests found.
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Leave Request Modal -->
+<div class="modal fade" id="leaveRequestModal" tabindex="-1" aria-labelledby="leaveRequestModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 15px;">
+            <div class="modal-header border-0">
+                <h5 class="modal-title" id="leaveRequestModalLabel">Time off Type Request</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body px-4">
+                <form method="post" enctype="multipart/form-data" id="leaveRequestForm">
+                    {% csrf_token %}
+                    
+                    <!-- Employee -->
+                    <div class="mb-4">
+                        <label class="form-label text-dark">Employee</label>
+                        <div class="text-primary fw-semibold">{{ employee.user.get_full_name }}</div>
+                    </div>
+
+                    <!-- Time off Type -->
+                    <div class="mb-4">
+                        <label class="form-label text-dark">Time off Type</label>
+                        <select class="form-select" name="leave_type" id="id_leave_type" required>
+                            <option value="">Select type</option>
+                            <option value="sick">Sick time off</option>
+                            <option value="annual">Paid time off</option>
+                            <option value="unpaid">Unpaid time off</option>
+                        </select>
+                    </div>
+
+                    <!-- Validity Period -->
+                    <div class="mb-4">
+                        <label class="form-label text-dark">Validity Period</label>
+                        <div class="row">
+                            <div class="col-5">
+                                <input type="date" class="form-control" name="start_date" id="id_start_date" required>
+                            </div>
+                            <div class="col-2 text-center pt-2">
+                                <span>To</span>
+                            </div>
+                            <div class="col-5">
+                                <input type="date" class="form-control" name="end_date" id="id_end_date" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Allocation -->
+                    <div class="mb-4">
+                        <label class="form-label text-dark">Allocation</label>
+                        <div class="text-primary fw-semibold">
+                            <span id="allocationDays">00.00</span> Days
+                        </div>
+                    </div>
+
+                    <!-- Attachment -->
+                    <div class="mb-4">
+                        <label class="form-label text-dark">Attachment:</label>
+                        <div class="d-flex align-items-center gap-2">
+                            <label for="id_attachment" class="btn btn-primary btn-sm">
+                                <i class="fas fa-upload"></i>
+                            </label>
+                            <span class="text-muted">(For sick leave certificate)</span>
+                            <input type="file" class="d-none" name="attachment" id="id_attachment" accept=".pdf,.jpg,.jpeg,.png">
+                            <span id="fileName" class="text-muted small"></span>
+                        </div>
+                    </div>
+
+                    <!-- Reason -->
+                    <div class="mb-4 d-none">
+                        <textarea class="form-control" name="reason" rows="3" placeholder="Reason for leave">Leave request</textarea>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="d-flex gap-3 mb-3">
+                        <button type="submit" class="btn text-white px-4" style="background-color: #9B59B6;">
+                            Submit
+                        </button>
+                        <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">
+                            Discard
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Calculate allocation days when dates change
+document.getElementById('id_start_date').addEventListener('change', calculateDays);
+document.getElementById('id_end_date').addEventListener('change', calculateDays);
+
+function calculateDays() {
+    const startDate = document.getElementById('id_start_date').value;
+    const endDate = document.getElementById('id_end_date').value;
+    
+    if (startDate && endDate) {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        const diffTime = Math.abs(end - start);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+        
+        document.getElementById('allocationDays').textContent = diffDays.toFixed(2);
+    }
+}
+
+// Show file name when file is selected
+document.getElementById('id_attachment').addEventListener('change', function(e) {
+    const fileName = e.target.files[0]?.name || '';
+    document.getElementById('fileName').textContent = fileName;
+});
+
+// Handle form submission
+document.getElementById('leaveRequestForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    
+    fetch('{% url "leave:apply_leave" %}', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            window.location.reload();
+        } else {
+            alert('Error submitting leave request');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error submitting leave request');
+    });
+});
+</script>
+
+<style>
+.table {
+    margin-bottom: 0;
+}
+
+.table th, .table td {
+    border: 1px solid #dee2e6;
+    vertical-align: middle;
+}
+
+.table-bordered {
+    border: 1px solid #dee2e6;
+}
+</style>
+{% endblock %}

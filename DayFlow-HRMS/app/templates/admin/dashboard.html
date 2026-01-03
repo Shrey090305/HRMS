@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - DayFlow HRMS{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">
+                <i class="fas fa-tachometer-alt"></i> Admin Dashboard
+            </h2>
+            <p class="text-muted">Overview of your organization</p>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-6 col-lg-3">
+            <div class="card stat-card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-subtitle mb-2">Total Employees</h6>
+                            <h2 class="card-title mb-0">{{ total_employees }}</h2>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-users fa-3x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="card stat-card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-subtitle mb-2">Present Today</h6>
+                            <h2 class="card-title mb-0">{{ present_today }}</h2>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-check-circle fa-3x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="card stat-card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-subtitle mb-2">Pending Leaves</h6>
+                            <h2 class="card-title mb-0">{{ pending_leaves }}</h2>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-clock fa-3x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="card stat-card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-subtitle mb-2">Quick Actions</h6>
+                            <a href="{{ url_for('admin.add_employee') }}" class="btn btn-light btn-sm mt-2">
+                                <i class="fas fa-user-plus"></i> Add Employee
+                            </a>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-tools fa-3x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Recent Employees -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-user-plus"></i> Recent Employees</h5>
+                    <a href="{{ url_for('admin.employees') }}" class="btn btn-sm btn-primary">View All</a>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Employee ID</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if recent_employees %}
+                                    {% for emp in recent_employees %}
+                                    <tr>
+                                        <td>{{ emp.employee_id }}</td>
+                                        <td>{{ emp.get_full_name() }}</td>
+                                        <td>{{ emp.email }}</td>
+                                        <td>
+                                            <span class="badge bg-{{ 'success' if emp.is_active else 'secondary' }}">
+                                                {{ 'Active' if emp.is_active else 'Inactive' }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="4" class="text-center">No employees yet</td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Leave Requests -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-plane"></i> Recent Leave Requests</h5>
+                    <a href="{{ url_for('leave.index') }}" class="btn btn-sm btn-primary">View All</a>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Employee</th>
+                                    <th>Type</th>
+                                    <th>Days</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if recent_leaves %}
+                                    {% for leave in recent_leaves %}
+                                    <tr>
+                                        <td>{{ leave.employee.employee_id }}</td>
+                                        <td>{{ leave.leave_type }}</td>
+                                        <td>{{ leave.days }}</td>
+                                        <td>
+                                            {% if leave.status == 'Pending' %}
+                                            <span class="badge bg-warning">Pending</span>
+                                            {% elif leave.status == 'Approved' %}
+                                            <span class="badge bg-success">Approved</span>
+                                            {% else %}
+                                            <span class="badge bg-danger">Rejected</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="4" class="text-center">No leave requests</td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

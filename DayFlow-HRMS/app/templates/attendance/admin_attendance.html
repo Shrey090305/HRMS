@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+
+{% block title %}Attendance Management - DayFlow HRMS{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4"><i class="fas fa-calendar-check"></i> Attendance Management</h2>
+        </div>
+    </div>
+
+    <!-- Statistics -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h6>Present</h6>
+                    <h3>{{ present }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-danger text-white">
+                <div class="card-body">
+                    <h6>Absent</h6>
+                    <h3>{{ absent }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <h6>Half-day</h6>
+                    <h3>{{ half_day }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h6>On Leave</h6>
+                    <h3>{{ on_leave }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Date Filter -->
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <form method="GET">
+                <div class="input-group">
+                    <input type="date" class="form-control" name="date" value="{{ filter_date.strftime('%Y-%m-%d') }}">
+                    <button type="submit" class="btn btn-primary">Filter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Attendance Table -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Attendance for {{ filter_date.strftime('%B %d, %Y') }}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Employee ID</th>
+                                    <th>Name</th>
+                                    <th>Check In</th>
+                                    <th>Check Out</th>
+                                    <th>Status</th>
+                                    <th>Remarks</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if records.items %}
+                                    {% for record in records.items %}
+                                    <tr>
+                                        <td>{{ record.employee.employee_id }}</td>
+                                        <td>{{ record.employee.get_full_name() }}</td>
+                                        <td>{{ record.check_in.strftime('%H:%M') if record.check_in else '-' }}</td>
+                                        <td>{{ record.check_out.strftime('%H:%M') if record.check_out else '-' }}</td>
+                                        <td>
+                                            {% if record.status == 'Present' %}
+                                            <span class="badge bg-success">Present</span>
+                                            {% elif record.status == 'Absent' %}
+                                            <span class="badge bg-danger">Absent</span>
+                                            {% elif record.status == 'Half-day' %}
+                                            <span class="badge bg-warning">Half-day</span>
+                                            {% else %}
+                                            <span class="badge bg-info">Leave</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ record.remarks or '-' }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="6" class="text-center">No attendance records for this date</td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    {% if records.pages > 1 %}
+                    <nav>
+                        <ul class="pagination justify-content-center">
+                            {% if records.has_prev %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ records.prev_num }}&date={{ filter_date.strftime('%Y-%m-%d') }}">Previous</a>
+                            </li>
+                            {% endif %}
+                            
+                            {% for page_num in records.iter_pages() %}
+                                {% if page_num %}
+                                    <li class="page-item {% if page_num == records.page %}active{% endif %}">
+                                        <a class="page-link" href="?page={{ page_num }}&date={{ filter_date.strftime('%Y-%m-%d') }}">{{ page_num }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% if records.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ records.next_num }}&date={{ filter_date.strftime('%Y-%m-%d') }}">Next</a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

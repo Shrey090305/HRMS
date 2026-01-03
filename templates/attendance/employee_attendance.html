@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Attendance - DayFlow HRMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <h2 class="mb-4">Attendance</h2>
+
+    <!-- Navigation Controls and Stats -->
+    <div class="d-flex align-items-center mb-3 gap-3">
+        <a href="?date={{ prev_month }}" class="btn btn-outline-secondary">
+            <i class="fas fa-chevron-left"></i>
+        </a>
+        <a href="?date={{ next_month }}" class="btn btn-outline-secondary">
+            <i class="fas fa-chevron-right"></i>
+        </a>
+        <div class="dropdown">
+            <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="monthDropdown" 
+                    data-bs-toggle="dropdown" aria-expanded="false">
+                {{ current_month_name }} ∨
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="monthDropdown">
+                <li class="px-3">
+                    <input type="month" class="form-control" id="monthPicker" 
+                           value="{{ current_year }}-{{ current_month }}" onchange="navigateToMonth(this.value)">
+                </li>
+            </ul>
+        </div>
+        
+        <div class="border px-4 py-2 ms-auto">
+            <strong>Count of days present</strong>
+            <div class="text-center fs-5">{{ days_present }}</div>
+        </div>
+        <div class="border px-4 py-2">
+            <strong>Leaves count</strong>
+            <div class="text-center fs-5">{{ leaves_count }}</div>
+        </div>
+        <div class="border px-4 py-2">
+            <strong>Total working days</strong>
+            <div class="text-center fs-5">{{ total_working_days }}</div>
+        </div>
+    </div>
+
+    <!-- Current Date Display -->
+    <div class="mb-3">
+        <h5>{{ current_date_display }}</h5>
+    </div>
+
+    <!-- Attendance Table -->
+    <div class="card shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-bordered mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width: 15%;">Date</th>
+                        <th style="width: 20%;">Check In</th>
+                        <th style="width: 20%;">Check Out</th>
+                        <th style="width: 20%;">Work Hours</th>
+                        <th style="width: 25%;">Extra hours</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if attendance_records %}
+                        {% for record in attendance_records %}
+                        <tr>
+                            <td>{{ record.date|date:"d/m/Y" }}</td>
+                            <td>{{ record.check_in_time|date:"H:i"|default:"--:--" }}</td>
+                            <td>{{ record.check_out_time|date:"H:i"|default:"--:--" }}</td>
+                            <td>{{ record.work_hours|default:"00:00" }}</td>
+                            <td>{{ record.extra_hours|default:"00:00" }}</td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="5" class="text-center text-muted py-4">
+                                No attendance records found for this month.
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+function navigateToMonth(monthValue) {
+    window.location.href = '?date=' + monthValue + '-01';
+}
+</script>
+
+<style>
+.gap-3 {
+    gap: 1rem;
+}
+
+.table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    border: 1px solid #dee2e6;
+}
+
+.table td {
+    border: 1px solid #dee2e6;
+    padding: 12px;
+}
+
+.table-bordered {
+    border: 1px solid #dee2e6;
+}
+</style>
+{% endblock %}

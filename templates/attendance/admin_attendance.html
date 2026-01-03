@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Attendance - DayFlow HRMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Attendance</h2>
+        <div class="col-md-4">
+            <input type="text" class="form-control" id="searchBar" placeholder="Searchbar" 
+                   value="{{ search_query }}" onkeyup="filterAttendance()">
+        </div>
+    </div>
+
+    <!-- Date Navigation Controls -->
+    <div class="d-flex align-items-center mb-4 gap-3">
+        <a href="?date={{ prev_date }}" class="btn btn-outline-secondary">
+            <i class="fas fa-chevron-left"></i>
+        </a>
+        <a href="?date={{ next_date }}" class="btn btn-outline-secondary">
+            <i class="fas fa-chevron-right"></i>
+        </a>
+        <div class="dropdown">
+            <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dateDropdown" 
+                    data-bs-toggle="dropdown" aria-expanded="false">
+                Date ∨
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="dateDropdown">
+                <li class="px-3">
+                    <input type="date" class="form-control" id="datePicker" 
+                           value="{{ current_date|date:'Y-m-d' }}" onchange="navigateToDate(this.value)">
+                </li>
+            </ul>
+        </div>
+        <button class="btn btn-outline-secondary" onclick="viewByDay()">Day</button>
+        <button class="btn btn-outline-secondary" onclick="viewByWeek()">Week</button>
+        <button class="btn btn-outline-secondary" onclick="viewByMonth()">Month</button>
+    </div>
+
+    <!-- Current Date Display -->
+    <div class="mb-3">
+        <h5>{{ current_date|date:"d, F Y" }}</h5>
+    </div>
+
+    <!-- Attendance Table -->
+    <div class="card shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-bordered mb-0" id="attendanceTable">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width: 20%;">Emp</th>
+                        <th style="width: 15%;">Check In</th>
+                        <th style="width: 15%;">Check Out</th>
+                        <th style="width: 15%;">Work Hours</th>
+                        <th style="width: 15%;">Extra hours</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if attendance_records %}
+                        {% for record in attendance_records %}
+                        <tr class="attendance-row" data-employee="{{ record.employee.user.get_full_name|lower }}">
+                            <td>[{{ record.employee.user.get_full_name }}]</td>
+                            <td>{{ record.check_in_time|date:"H:i"|default:"--:--" }}</td>
+                            <td>{{ record.check_out_time|date:"H:i"|default:"--:--" }}</td>
+                            <td>{{ record.work_hours|default:"00:00" }}</td>
+                            <td>{{ record.extra_hours|default:"00:00" }}</td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="5" class="text-center text-muted py-4">
+                                No attendance records found for this date.
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+function navigateToDate(dateValue) {
+    window.location.href = '?date=' + dateValue;
+}
+
+function filterAttendance() {
+    const searchValue = document.getElementById('searchBar').value.toLowerCase();
+    const rows = document.querySelectorAll('.attendance-row');
+    
+    rows.forEach(row => {
+        const employeeName = row.getAttribute('data-employee');
+        if (employeeName.includes(searchValue)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+
+function viewByDay() {
+    window.location.href = '?view=day&date={{ current_date|date:"Y-m-d" }}';
+}
+
+function viewByWeek() {
+    window.location.href = '?view=week&date={{ current_date|date:"Y-m-d" }}';
+}
+
+function viewByMonth() {
+    window.location.href = '?view=month&date={{ current_date|date:"Y-m-d" }}';
+}
+</script>
+
+<style>
+.gap-3 {
+    gap: 1rem;
+}
+
+.table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    border: 1px solid #dee2e6;
+}
+
+.table td {
+    border: 1px solid #dee2e6;
+    padding: 12px;
+}
+
+.table-bordered {
+    border: 1px solid #dee2e6;
+}
+
+#searchBar {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+}
+</style>
+{% endblock %}

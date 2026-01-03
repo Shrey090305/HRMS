@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Leave Request Details - DayFlow HRMS{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">Leave Request Details</h4>
+                    {% if leave_request.status == 'pending' %}
+                        <span class="badge bg-warning">Pending</span>
+                    {% elif leave_request.status == 'approved' %}
+                        <span class="badge bg-success">Approved</span>
+                    {% else %}
+                        <span class="badge bg-danger">Rejected</span>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-4"><strong>Employee:</strong></div>
+                        <div class="col-md-8">{{ leave_request.employee.user.get_full_name }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4"><strong>Employee ID:</strong></div>
+                        <div class="col-md-8">{{ leave_request.employee.employee_id }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4"><strong>Leave Type:</strong></div>
+                        <div class="col-md-8">{{ leave_request.get_leave_type_display }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4"><strong>Start Date:</strong></div>
+                        <div class="col-md-8">{{ leave_request.start_date }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4"><strong>End Date:</strong></div>
+                        <div class="col-md-8">{{ leave_request.end_date }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4"><strong>Duration:</strong></div>
+                        <div class="col-md-8">{{ leave_request.duration_days }} day(s)</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4"><strong>Reason:</strong></div>
+                        <div class="col-md-8">{{ leave_request.reason }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4"><strong>Applied On:</strong></div>
+                        <div class="col-md-8">{{ leave_request.applied_date }}</div>
+                    </div>
+                    {% if leave_request.reviewed_by %}
+                    <div class="row mb-3">
+                        <div class="col-md-4"><strong>Reviewed By:</strong></div>
+                        <div class="col-md-8">{{ leave_request.reviewed_by.get_full_name }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4"><strong>Reviewed On:</strong></div>
+                        <div class="col-md-8">{{ leave_request.reviewed_date }}</div>
+                    </div>
+                    {% if leave_request.admin_remarks %}
+                    <div class="row mb-3">
+                        <div class="col-md-4"><strong>Admin Remarks:</strong></div>
+                        <div class="col-md-8">{{ leave_request.admin_remarks }}</div>
+                    </div>
+                    {% endif %}
+                    {% endif %}
+
+                    <div class="d-flex justify-content-between mt-4">
+                        {% if user.is_admin %}
+                            <a href="{% url 'leave:admin_leave' %}" class="btn btn-secondary">Back to List</a>
+                            {% if leave_request.status == 'pending' %}
+                            <div>
+                                <a href="{% url 'leave:approve_leave' leave_request.pk %}" class="btn btn-success">Approve</a>
+                                <a href="{% url 'leave:reject_leave' leave_request.pk %}" class="btn btn-danger">Reject</a>
+                            </div>
+                            {% endif %}
+                        {% else %}
+                            <a href="{% url 'leave:employee_leave' %}" class="btn btn-secondary">Back to My Leaves</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

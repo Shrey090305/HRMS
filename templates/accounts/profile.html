@@ -1,0 +1,562 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Profile - DayFlow HRMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h2 class="mb-4">My Profile</h2>
+    
+    {% csrf_token %}
+    
+    <div class="card shadow-sm">
+        <div class="card-body p-4">
+            <!-- Profile Header Section -->
+            <div class="row mb-4">
+                <div class="col-md-2">
+                    <!-- Profile Picture -->
+                    <div class="position-relative d-inline-block">
+                        <div class="rounded-circle bg-light d-flex align-items-center justify-content-center" 
+                             style="width: 120px; height: 120px; border: 3px solid #dee2e6;">
+                            <i class="fas fa-user text-muted" style="font-size: 60px;"></i>
+                        </div>
+                        <button class="btn btn-light btn-sm rounded-circle position-absolute" 
+                                style="bottom: 5px; right: 5px; width: 35px; height: 35px; border: 2px solid #dee2e6;">
+                            <i class="fas fa-pencil-alt" style="font-size: 14px;"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-5">
+                    <h4 class="mb-3 border-bottom pb-2">{{ user.get_full_name }}</h4>
+                    <div class="mb-2">
+                        <strong>Login ID:</strong>
+                        <div class="border-bottom pb-1">{{ user.username }}</div>
+                    </div>
+                    <div class="mb-2">
+                        <strong>Email:</strong>
+                        <div class="border-bottom pb-1">{{ user.email }}</div>
+                    </div>
+                    <div class="mb-2">
+                        <strong>Mobile:</strong>
+                        <div class="border-bottom pb-1">{{ user.phone|default:"-" }}</div>
+                    </div>
+                </div>
+                <div class="col-md-5">
+                    <div class="mb-2">
+                        <strong>Company:</strong>
+                        <div class="border-bottom pb-1">DayFlow HRMS</div>
+                    </div>
+                    <div class="mb-2">
+                        <strong>Department:</strong>
+                        <div class="border-bottom pb-1">
+                            {% if user.employee_profile %}{{ user.employee_profile.get_department_display }}{% else %}-{% endif %}
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <strong>Manager:</strong>
+                        <div class="border-bottom pb-1">
+                            {% if user.employee_profile.manager %}{{ user.employee_profile.manager.full_name }}{% else %}-{% endif %}
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <strong>Location:</strong>
+                        <div class="border-bottom pb-1">-</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Navigation -->
+            <ul class="nav nav-tabs mb-4" id="profileTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="resume-tab" data-bs-toggle="tab" data-bs-target="#resume" type="button" role="tab">
+                        Resume
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="private-tab" data-bs-toggle="tab" data-bs-target="#private" type="button" role="tab">
+                        Private Info
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="salary-tab" data-bs-toggle="tab" data-bs-target="#salary" type="button" role="tab">
+                        Salary Info
+                    </button>
+                </li>
+            </ul>
+
+            <!-- Tab Content -->
+            <div class="tab-content" id="profileTabContent">
+                <!-- Resume Tab -->
+                <div class="tab-pane fade" id="resume" role="tabpanel" aria-labelledby="resume-tab">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <!-- About Section -->
+                            <div class="mb-4 p-3 border rounded">
+                                <h5 class="mb-3 d-flex justify-content-between align-items-center">
+                                    About
+                                    <i class="fas fa-pencil-alt text-muted" style="font-size: 14px; cursor: pointer;"></i>
+                                </h5>
+                                <p class="text-muted" style="font-size: 14px; line-height: 1.6;">
+                                    {{ user.about|default:"Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book." }}
+                                </p>
+                            </div>
+
+                            <!-- What I love about my job -->
+                            <div class="mb-4 p-3 border rounded">
+                                <h5 class="mb-3 d-flex justify-content-between align-items-center">
+                                    What I love about my job
+                                    <i class="fas fa-pencil-alt text-muted" style="font-size: 14px; cursor: pointer;"></i>
+                                </h5>
+                                <p class="text-muted" style="font-size: 14px; line-height: 1.6;">
+                                    {{ user.job_love|default:"Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book." }}
+                                </p>
+                            </div>
+
+                            <!-- My interests and hobbies -->
+                            <div class="mb-4 p-3 border rounded">
+                                <h5 class="mb-3 d-flex justify-content-between align-items-center">
+                                    My interests and hobbies
+                                    <i class="fas fa-pencil-alt text-muted" style="font-size: 14px; cursor: pointer;"></i>
+                                </h5>
+                                <p class="text-muted" style="font-size: 14px; line-height: 1.6;">
+                                    {{ user.hobbies|default:"Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book." }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <!-- Skills Section -->
+                            <div class="mb-4 p-3 border rounded">
+                                <h5 class="mb-3">Skills</h5>
+                                <textarea class="form-control" rows="5" placeholder="Add your skills here..." 
+                                          style="border: 1px solid #dee2e6; resize: vertical;">{{ user.skills|default:"" }}</textarea>
+                                <button class="btn btn-primary btn-sm mt-2">
+                                    <i class="fas fa-save"></i> Save
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Private Info Tab -->
+                <div class="tab-pane fade" id="private" role="tabpanel" aria-labelledby="private-tab">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Date of Birth</label>
+                                <div class="border-bottom pb-2">{{ user.date_of_birth|default:"-" }}</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Residing Address</label>
+                                <div class="border-bottom pb-2">{{ user.address|default:"-" }}</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Nationality</label>
+                                <div class="border-bottom pb-2">{{ user.nationality|default:"-" }}</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Personal Email</label>
+                                <div class="border-bottom pb-2">{{ user.email }}</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Gender</label>
+                                <div class="border-bottom pb-2">{{ user.gender|default:"-" }}</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Marital Status</label>
+                                <div class="border-bottom pb-2">{{ user.marital_status|default:"-" }}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Emergency Contact Name</label>
+                                <div class="border-bottom pb-2">
+                                    {% if user.employee_profile %}{{ user.employee_profile.emergency_contact_name|default:"-" }}{% else %}-{% endif %}
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Emergency Contact Number</label>
+                                <div class="border-bottom pb-2">
+                                    {% if user.employee_profile %}{{ user.employee_profile.emergency_contact_number|default:"-" }}{% else %}-{% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Salary Info Tab (Active by default) -->
+                <div class="tab-pane fade show active" id="salary" role="tabpanel" aria-labelledby="salary-tab">
+                    <!-- Wage Section -->
+                    <div class="border-bottom pb-4 mb-4">
+                        <h5 class="mb-3">Salary Info</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Month Wage</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="monthlyWage" 
+                                               value="{% if user.employee_profile.monthly_wage %}{{ user.employee_profile.monthly_wage }}{% endif %}" 
+                                               placeholder="0">
+                                        <span class="input-group-text">/ Month</span>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Yearly wage</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="yearlyWage" readonly
+                                               value="{% if user.employee_profile.yearly_wage %}{{ user.employee_profile.yearly_wage }}{% endif %}" 
+                                               placeholder="0">
+                                        <span class="input-group-text">/ Yearly</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">No of working days in a week:</label>
+                                    <input type="number" class="form-control" id="workingDays" 
+                                           value="{% if user.employee_profile.working_days_per_week %}{{ user.employee_profile.working_days_per_week }}{% endif %}" 
+                                           placeholder="5">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Break Time:</label>
+                                    <div class="input-group">
+                                        <input type="number" step="0.5" class="form-control" id="breakTime" 
+                                               value="{% if user.employee_profile.break_time_hours %}{{ user.employee_profile.break_time_hours }}{% endif %}" 
+                                               placeholder="1.0">
+                                        <span class="input-group-text">/hrs</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Salary Components Section -->
+                    <div class="border-bottom pb-4 mb-4">
+                        <h5 class="mb-3">Salary Components</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Basic Salary</label>
+                                    <div class="d-flex align-items-center">
+                                        <input type="text" class="form-control me-2" id="basicSalary" readonly
+                                               value="{% if user.employee_profile.basic_salary %}{{ user.employee_profile.basic_salary }}{% else %}0.00{% endif %}">
+                                        <span class="text-nowrap me-2">₹ / month</span>
+                                        <input type="text" class="form-control text-end" id="basicSalaryPercent" readonly
+                                               value="50.00" style="width: 80px;">
+                                        <span class="ms-1">%</span>
+                                    </div>
+                                    <small class="text-muted">50% of the basic salary</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">House Rent Allowance</label>
+                                    <div class="d-flex align-items-center">
+                                        <input type="text" class="form-control me-2" id="hra" readonly
+                                               value="{% if user.employee_profile.hra %}{{ user.employee_profile.hra }}{% else %}0.00{% endif %}">
+                                        <span class="text-nowrap me-2">₹ / month</span>
+                                        <input type="text" class="form-control text-end" id="hraPercent" readonly
+                                               value="50.00" style="width: 80px;">
+                                        <span class="ms-1">%</span>
+                                    </div>
+                                    <small class="text-muted">HRA provided to employees 50% of the basic salary</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Standard Allowance</label>
+                                    <div class="d-flex align-items-center">
+                                        <input type="text" class="form-control me-2" id="standardAllowance" readonly
+                                               value="4167.00">
+                                        <span class="text-nowrap me-2">₹ / month</span>
+                                        <input type="text" class="form-control text-end" id="standardAllowancePercent" readonly
+                                               value="0.00" style="width: 80px;">
+                                        <span class="ms-1">%</span>
+                                    </div>
+                                    <small class="text-muted">A standard allowance is a predetermined, fixed amount provided to employee as part of their salary</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Performance Bonus</label>
+                                    <div class="d-flex align-items-center">
+                                        <input type="text" class="form-control me-2" id="performanceBonus" readonly
+                                               value="{% if user.employee_profile.performance_bonus %}{{ user.employee_profile.performance_bonus }}{% else %}0.00{% endif %}">
+                                        <span class="text-nowrap me-2">₹ / month</span>
+                                        <input type="text" class="form-control text-end" id="performanceBonusPercent" readonly
+                                               value="8.33" style="width: 80px;">
+                                        <span class="ms-1">%</span>
+                                    </div>
+                                    <small class="text-muted">Variable amount paid during payroll. The value defined by the company and calculated as a % of the basic salary</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Leave Travel Allowance</label>
+                                    <div class="d-flex align-items-center">
+                                        <input type="text" class="form-control me-2" id="lta" readonly
+                                               value="{% if user.employee_profile.lta %}{{ user.employee_profile.lta }}{% else %}0.00{% endif %}">
+                                        <span class="text-nowrap me-2">₹ / month</span>
+                                        <input type="text" class="form-control text-end" id="ltaPercent" readonly
+                                               value="8.33" style="width: 80px;">
+                                        <span class="ms-1">%</span>
+                                    </div>
+                                    <small class="text-muted">LTA is paid by the company to employees to cover their travel expenses, and calculated as a % of the basic salary</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Fixed Allowance</label>
+                                    <div class="d-flex align-items-center">
+                                        <input type="text" class="form-control me-2" id="fixedAllowance" readonly
+                                               value="{% if user.employee_profile.fixed_allowance %}{{ user.employee_profile.fixed_allowance }}{% else %}0.00{% endif %}">
+                                        <span class="text-nowrap me-2">₹ / month</span>
+                                        <input type="text" class="form-control text-end" id="fixedAllowancePercent" readonly
+                                               value="0.00" style="width: 80px;">
+                                        <span class="ms-1">%</span>
+                                    </div>
+                                    <small class="text-muted">Fixed allowance portion of wages is determined after calculating all salary components</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Provident Fund Section -->
+                    <div class="border-bottom pb-4 mb-4">
+                        <h5 class="mb-3">Provident Fund (PF) Contribution</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Employee</label>
+                                    <div class="d-flex align-items-center">
+                                        <input type="text" class="form-control me-2" id="pfEmployee" readonly
+                                               value="{% if user.employee_profile.pf_employee %}{{ user.employee_profile.pf_employee }}{% else %}0.00{% endif %}">
+                                        <span class="text-nowrap me-2">₹ / month</span>
+                                        <input type="text" class="form-control text-end" id="pfEmployeePercent" readonly
+                                               value="12.00" style="width: 80px;">
+                                        <span class="ms-1">%</span>
+                                    </div>
+                                    <small class="text-muted">PF is calculated based on the basic salary</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Employer</label>
+                                    <div class="d-flex align-items-center">
+                                        <input type="text" class="form-control me-2" id="pfEmployer" readonly
+                                               value="{% if user.employee_profile.pf_employer %}{{ user.employee_profile.pf_employer }}{% else %}0.00{% endif %}">
+                                        <span class="text-nowrap me-2">₹ / month</span>
+                                        <input type="text" class="form-control text-end" id="pfEmployerPercent" readonly
+                                               value="12.00" style="width: 80px;">
+                                        <span class="ms-1">%</span>
+                                    </div>
+                                    <small class="text-muted">PF is calculated based on the basic salary</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tax Deductions Section -->
+                    <div class="pb-4 mb-4">
+                        <h5 class="mb-3">Tax Deductions</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Professional Tax</label>
+                                    <div class="d-flex align-items-center">
+                                        <input type="text" class="form-control me-2" id="professionalTax" readonly
+                                               value="{% if user.employee_profile.professional_tax %}{{ user.employee_profile.professional_tax }}{% else %}200.00{% endif %}">
+                                        <span class="text-nowrap">₹ / month</span>
+                                    </div>
+                                    <small class="text-muted">Professional Tax deducted from the Gross salary</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Save Button -->
+                    <div class="text-end">
+                        <button type="button" class="btn btn-primary" id="saveSalaryBtn">
+                            <i class="fas fa-save"></i> Save Salary Information
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Security Tab -->
+                <div class="tab-pane fade" id="security" role="tabpanel" aria-labelledby="security-tab"
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5 class="mb-3">Change Password</h5>
+                            <form method="post" action="#">
+                                {% csrf_token %}
+                                <div class="mb-3">
+                                    <label class="form-label">Current Password</label>
+                                    <input type="password" class="form-control" name="current_password">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">New Password</label>
+                                    <input type="password" class="form-control" name="new_password">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Confirm New Password</label>
+                                    <input type="password" class="form-control" name="confirm_password">
+                                </div>
+                                <button type="submit" class="btn btn-primary">Update Password</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .border-bottom {
+        border-bottom: 1px solid #dee2e6 !important;
+    }
+    .nav-tabs .nav-link {
+        color: #6c757d;
+        border: none;
+        border-bottom: 3px solid transparent;
+        padding: 0.75rem 1.5rem;
+    }
+    .nav-tabs .nav-link.active {
+        color: #0d6efd;
+        border-bottom: 3px solid #0d6efd;
+        background-color: transparent;
+    }
+    .nav-tabs .nav-link:hover {
+        border-bottom: 3px solid #0d6efd;
+    }
+    .nav-tabs {
+        border-bottom: 2px solid #dee2e6;
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const monthlyWageInput = document.getElementById('monthlyWage');
+    const saveSalaryBtn = document.getElementById('saveSalaryBtn');
+    
+    // Function to calculate all salary components
+    function calculateSalaryComponents() {
+        const monthlyWage = parseFloat(monthlyWageInput.value) || 0;
+        
+        if (monthlyWage === 0) {
+            return;
+        }
+        
+        // Calculate yearly wage
+        const yearlyWage = monthlyWage * 12;
+        document.getElementById('yearlyWage').value = yearlyWage.toFixed(2);
+        
+        // Calculate Basic Salary (50% of monthly wage)
+        const basicSalary = monthlyWage * 0.50;
+        document.getElementById('basicSalary').value = basicSalary.toFixed(2);
+        document.getElementById('basicSalaryPercent').value = '50.00';
+        
+        // Calculate HRA (50% of Basic Salary)
+        const hra = basicSalary * 0.50;
+        document.getElementById('hra').value = hra.toFixed(2);
+        const hraPercent = (hra / monthlyWage) * 100;
+        document.getElementById('hraPercent').value = hraPercent.toFixed(2);
+        
+        // Standard Allowance is fixed at 4167
+        const standardAllowance = 4167.00;
+        document.getElementById('standardAllowance').value = standardAllowance.toFixed(2);
+        const standardPercent = (standardAllowance / monthlyWage) * 100;
+        document.getElementById('standardAllowancePercent').value = standardPercent.toFixed(2);
+        
+        // Performance Bonus (8.33% of Basic Salary)
+        const performanceBonus = basicSalary * 0.0833;
+        document.getElementById('performanceBonus').value = performanceBonus.toFixed(2);
+        document.getElementById('performanceBonusPercent').value = '8.33';
+        
+        // Leave Travel Allowance (8.33% of Basic Salary)  
+        const lta = basicSalary * 0.0833;
+        document.getElementById('lta').value = lta.toFixed(2);
+        document.getElementById('ltaPercent').value = '8.33';
+        
+        // Fixed Allowance = Wage - (Basic + HRA + Standard + Performance + LTA)
+        const fixedAllowance = monthlyWage - (basicSalary + hra + standardAllowance + performanceBonus + lta);
+        document.getElementById('fixedAllowance').value = fixedAllowance.toFixed(2);
+        const fixedPercent = (fixedAllowance / monthlyWage) * 100;
+        document.getElementById('fixedAllowancePercent').value = fixedPercent.toFixed(2);
+        
+        // PF Contributions (12% of Basic Salary for both employee and employer)
+        const pfEmployee = basicSalary * 0.12;
+        const pfEmployer = basicSalary * 0.12;
+        document.getElementById('pfEmployee').value = pfEmployee.toFixed(2);
+        document.getElementById('pfEmployer').value = pfEmployer.toFixed(2);
+        document.getElementById('pfEmployeePercent').value = '12.00';
+        document.getElementById('pfEmployerPercent').value = '12.00';
+        
+        // Professional Tax remains fixed at 200
+        document.getElementById('professionalTax').value = '200.00';
+    }
+    
+    // Recalculate when monthly wage changes
+    if (monthlyWageInput) {
+        monthlyWageInput.addEventListener('input', calculateSalaryComponents);
+        
+        // Calculate on page load if there's a value
+        if (monthlyWageInput.value) {
+            calculateSalaryComponents();
+        }
+    }
+    
+    // Save salary information
+    if (saveSalaryBtn) {
+        saveSalaryBtn.addEventListener('click', function() {
+            const salaryData = {
+                monthly_wage: document.getElementById('monthlyWage').value,
+                yearly_wage: document.getElementById('yearlyWage').value,
+                working_days_per_week: document.getElementById('workingDays').value,
+                break_time_hours: document.getElementById('breakTime').value,
+                basic_salary: document.getElementById('basicSalary').value,
+                hra: document.getElementById('hra').value,
+                standard_allowance: document.getElementById('standardAllowance').value,
+                performance_bonus: document.getElementById('performanceBonus').value,
+                lta: document.getElementById('lta').value,
+                fixed_allowance: document.getElementById('fixedAllowance').value,
+                pf_employee: document.getElementById('pfEmployee').value,
+                pf_employer: document.getElementById('pfEmployer').value,
+                professional_tax: document.getElementById('professionalTax').value
+            };
+            
+            // Get CSRF token
+            const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            
+            // Send AJAX request to save salary data
+            fetch('{% url "accounts:save_salary" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                },
+                body: JSON.stringify(salaryData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Salary information saved successfully!');
+                } else {
+                    alert('Error saving salary information: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error saving salary information');
+            });
+        });
+    }
+});
+</script>
+{% endblock %}

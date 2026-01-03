@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block title %}My Attendance - DayFlow HRMS{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">
+                <i class="fas fa-calendar-check"></i> My Attendance
+            </h2>
+        </div>
+    </div>
+
+    <!-- Check In/Out Section -->
+    <div class="row mb-4">
+        <div class="col-md-6 offset-md-3">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Today: {{ today.strftime('%B %d, %Y') }}</h5>
+                    {% if today_record %}
+                        <p class="mb-3">
+                            <span class="badge bg-success fs-6">{{ today_record.status }}</span>
+                        </p>
+                        {% if today_record.check_in %}
+                        <p><strong>Check In:</strong> {{ today_record.check_in.strftime('%H:%M:%S') }}</p>
+                        {% endif %}
+                        {% if today_record.check_out %}
+                        <p><strong>Check Out:</strong> {{ today_record.check_out.strftime('%H:%M:%S') }}</p>
+                        {% else %}
+                        <button type="button" class="btn btn-danger" id="checkOutBtn">
+                            <i class="fas fa-sign-out-alt"></i> Check Out
+                        </button>
+                        {% endif %}
+                    {% else %}
+                        <p class="text-muted mb-3">You haven't checked in yet today</p>
+                        <button type="button" class="btn btn-success" id="checkInBtn">
+                            <i class="fas fa-sign-in-alt"></i> Check In
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Attendance History -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-history"></i> Attendance History (Last 7 Days)</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Check In</th>
+                                    <th>Check Out</th>
+                                    <th>Status</th>
+                                    <th>Remarks</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if records %}
+                                    {% for record in records %}
+                                    <tr>
+                                        <td>{{ record.date.strftime('%Y-%m-%d') }}</td>
+                                        <td>{{ record.check_in.strftime('%H:%M') if record.check_in else '-' }}</td>
+                                        <td>{{ record.check_out.strftime('%H:%M') if record.check_out else '-' }}</td>
+                                        <td>
+                                            {% if record.status == 'Present' %}
+                                            <span class="badge bg-success">Present</span>
+                                            {% elif record.status == 'Absent' %}
+                                            <span class="badge bg-danger">Absent</span>
+                                            {% elif record.status == 'Half-day' %}
+                                            <span class="badge bg-warning">Half-day</span>
+                                            {% else %}
+                                            <span class="badge bg-info">Leave</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ record.remarks or '-' }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="5" class="text-center">No attendance records</td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const checkInBtn = document.getElementById('checkInBtn');
+    const checkOutBtn = document.getElementById('checkOutBtn');
+
+    if (checkInBtn) {
+        checkInBtn.addEventListener('click', function() {
+            fetch('{{ url_for("attendance.checkin") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    location.reload();
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred');
+            });
+        });
+    }
+
+    if (checkOutBtn) {
+        checkOutBtn.addEventListener('click', function() {
+            fetch('{{ url_for("attendance.checkout") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    location.reload();
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred');
+            });
+        });
+    }
+});
+</script>
+{% endblock %}
